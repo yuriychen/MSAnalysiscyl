@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1621500052498.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3444329401",
+    "id" : "A3BE34D9",
+    "lastKnownWriteTime" : 1621499696,
+    "last_content_update" : 1621499696,
+    "path" : "D:/YulinChen/ZJU LSI/Lin Lab/R_Packages/MSAnalysiscyl/R/data_read.R",
+    "project_path" : "R/data_read.R",
+    "properties" : {
+        "cursorPosition" : "59,49",
+        "scrollLine" : "36"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
