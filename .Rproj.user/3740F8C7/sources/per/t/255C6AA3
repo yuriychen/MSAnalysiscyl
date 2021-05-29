@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1622272782129.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "246379359",
+    "id" : "255C6AA3",
+    "lastKnownWriteTime" : 1622280650,
+    "last_content_update" : 1622280650775,
+    "path" : "D:/YulinChen/ZJU LSI/Lin Lab/R_Packages/MSAnalysiscyl/R/data_analysis.R",
+    "project_path" : "R/data_analysis.R",
+    "properties" : {
+        "cursorPosition" : "96,48",
+        "scrollLine" : "72"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

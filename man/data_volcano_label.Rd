@@ -5,9 +5,9 @@
 \title{Draw volcano plot with Labels}
 \usage{
 data_volcano_label(
-  prot_dat_1,
-  prot_dat_2,
-  meta,
+  prot,
+  condition1,
+  condition2,
   df,
   xleft = -5,
   xright = 5,
@@ -21,11 +21,11 @@ data_volcano_label(
 )
 }
 \arguments{
-\item{prot_dat_1}{A DataFrame of condition 1.}
+\item{prot}{A MSDataSet object.}
 
-\item{prot_dat_2}{A DataFrame of condition 2.}
+\item{condition1}{A character of condition 1.}
 
-\item{meta}{A DataFrame of meta file.}
+\item{condition2}{A character of condition 2.}
 
 \item{df}{A integer of freedom dgree.}
 

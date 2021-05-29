@@ -1,6 +1,11 @@
 #' A Reference Class to represent MS dataset.
 #'
 #' @field balance A length-one numeric vector.
+#' @import limma
+#' @import edgeR
+#' @import RColorBrewer
+#' @import psych
+#' @import ggplot2
 MSDataSet <- setRefClass('MSDataSet',
                          fields = list(
                            name='character',
@@ -13,7 +18,9 @@ MSDataSet <- setRefClass('MSDataSet',
                            dataset='data.frame',
                            dataset_raw='data.frame',
                            dataset_annotation='data.frame',
+                           dataset_annotation_raw='data.frame',
                            dataset_count='data.frame',
+                           dataset_count_venn='data.frame',
                            dataset_count_excluded='data.frame',
                            samples='vector',
                            conditions='vector',
@@ -40,6 +47,20 @@ MSDataSet <- setRefClass('MSDataSet',
                              cat('num_repeat: ',num_repeat,'\n')
                              cat('dataset: ',str(dataset),'\n')
                              cat('dataset annotation: ',str(dataset_annotation),'\n')
+                           },
+                           venn_repeat = function(zerotolinrep=0){
+                             meta_noref <- meta[is.na(meta$reference),]
+                             datacount <- dataset
+                             datacount[datacount > 0] <- 1
+                             i <- 1
+                             for (r in repeats){
+                               datacount[,as.character(r)] <- rowSums(datacount[,meta[meta$repeat. == r,'sample']])
+                               datacount[(datacount[,as.character(r)] < (num_condition - zerotolinrep)),as.character(r)] <- 0
+                               datacount[(datacount[,as.character(r)] >= (num_condition - zerotolinrep)),as.character(r)] <- i
+                               i <- i * 10
+                             }
+                             datacount[,'venn'] <- rowSums(datacount[,as.character(repeats)])
+                             dataset_count_venn <<- datacount
                            },
                            exclude = function(zerotolinrep=0,zerotolamongreps=0){
                              meta_noref <- meta[is.na(meta$reference),]
@@ -84,7 +105,7 @@ MSDataSet <- setRefClass('MSDataSet',
                              }
                              irs <- irs[,-1]
                              irs$average <- apply(irs,1,function(x){exp(mean(log((x))))})
-                             
+
                              i <- 1
                              prot_dat_irs <- cbind(rownames(dataset),(dataset[,1:num_condition] * irs$average / rowSums(dataset[,1:num_condition])))
                              while (i < num_repeat){
@@ -93,10 +114,10 @@ MSDataSet <- setRefClass('MSDataSet',
                                prot_dat_irs <- cbind(prot_dat_irs,(dataset[,start_site:stop_site] * irs$average / rowSums(dataset[,start_site:stop_site])))
                                i <- i + 1
                              }
-                             
+
                              rownames(prot_dat_irs) <- prot_dat_irs[,1]
                              prot_dat_irs <- prot_dat_irs[,-1]
-                             
+
                              dataset <<- prot_dat_irs
                              normalization_status <<- append(normalization_status,'IRS')
                            },
@@ -111,9 +132,10 @@ MSDataSet <- setRefClass('MSDataSet',
                              #need RColorBrewer
                              qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
                              col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-                             
+
                              par(mfrow = c(2, 2))
                              boxplot(log2(dataset),col = rep(col_vector[9:(num_repeat+8)],each=num_condition), main = state)
+                             #need limma
                              plotDensities(log2(dataset),col = rep(col_vector[9:(num_repeat+8)],num_condition), main = state)
                              plotMDS(log2(dataset), col = col_vector[9:(num_condition+8)], main = state)
                              data_calCV_draw(dataset,num_condition,num_repeat, state)
@@ -140,20 +162,50 @@ MSDataSet <- setRefClass('MSDataSet',
                              p_count <- data.frame(p_count)
                              p_count[,1] <- factor(p_count[,1],levels=p_count[,1])
                              p_count[,2] <- as.numeric(p_count[,2])
-                             p_c <- ggplot(data=p_count,aes(x=p_count[,1],y=p_count[,2]))+geom_bar(stat='identity') +
+                             p_c <- ggplot(data=p_count,aes(x=p_count[,1],y=p_count[,2]))+geom_bar(stat='identity',aes(fill=p_count[,1])) +
                                theme_bw() + theme(axis.text.x = element_text(angle = 60,hjust=1),legend.position = 'none',axis.text = element_text(size=12))+
                                xlab('')+ylab('')+ggtitle('Protein Count')
-                             
+
                              temp_inten <- temp
                              p_inten <- cbind(colnames(temp_inten),colSums(temp_inten))
                              p_inten <- data.frame(p_inten)
                              p_inten[,1] <- factor(p_inten[,1],levels=p_inten[,1])
                              p_inten[,2] <- as.numeric(p_inten[,2])
-                             p_i <- ggplot(data=p_count,aes(x=p_inten[,1],y=p_inten[,2]))+geom_bar(stat='identity') +
+                             p_i <- ggplot(data=p_count,aes(x=p_inten[,1],y=p_inten[,2]))+geom_bar(stat='identity',aes(fill=p_inten[,1])) +
                                theme_bw() + theme(axis.text.x = element_text(angle = 60,hjust=1),legend.position = 'none',axis.text = element_text(size=12))+
                                xlab('')+ylab('')+ggtitle('Protein Total Intensity')
-                             
+
                              return(list(p_c,p_i))
+                           },
+                           data_calMean_calSD = function(){
+                             datameta <- meta
+                             rownames(datameta) <- datameta$sample
+                             condition_list <- unique(datameta[colnames(dataset),'condition'])
+
+                             datamean <- as.numeric(rownames(dataset))
+                             datasd <- as.numeric(rownames(dataset))
+                             datamean <- data.frame(datamean)
+                             datasd <- data.frame(datasd)
+                             mean_coln <- c()
+                             sd_coln <- c()
+                             for (c in condition_list) {
+                               sample_list <- datameta$sample[datameta$condition == c]
+                               temp <- dataset[,sample_list]
+                               mean_list <- apply(temp, 1, mean)
+                               sd_list <- apply(temp, 1, sd)
+                               mean_coln <- append(mean_coln,paste('mean_',c,sep=''))
+                               sd_coln <- append(sd_coln,paste('sd_',c,sep=''))
+                               datamean <- cbind(datamean,mean_list)
+                               datasd <- cbind(datasd,sd_list)
+                             }
+                             rownames(datamean) <- datamean[,1]
+                             datamean <- datamean[,-1]
+                             rownames(datasd) <- datasd[,1]
+                             datasd <- datasd[,-1]
+                             colnames(datamean) <- mean_coln
+                             colnames(datasd) <- sd_coln
+                             mean_condition <<- datamean
+                             sd_condition <<- datasd
                            }
                          )
 )
@@ -168,10 +220,6 @@ MSDataSet <- setRefClass('MSDataSet',
 #' @param analysis_type A character.
 #' @param exclusion_status A character.
 #' @param normalization_status A vector.
-#' @import edgeR
-#' @import RColorBrewer
-#' @import psych
-#' @import ggplot2
 #' @export
 read_maxquant_prot <- function(prot_raw,meta,name='defalut',reference=FALSE,analysis_type='TMT',exclusion_status='none',normalization_status=c('none')){
   prot_dat_clean <- data_clean(prot_raw)
@@ -189,7 +237,9 @@ read_maxquant_prot <- function(prot_raw,meta,name='defalut',reference=FALSE,anal
     dataset=prot_annotation[[1]],
     dataset_raw=prot_annotation[[1]],
     dataset_annotation=prot_annotation[[2]],
+    dataset_annotation_raw=prot_annotation[[2]],
     dataset_count=data.frame(),
+    dataset_count_venn=data.frame(),
     dataset_count_excluded=data.frame(),
     samples=meta$sample[is.na(meta$reference)],
     conditions=unique(meta$condition[is.na(meta$reference)]),

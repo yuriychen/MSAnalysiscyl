@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1622272779939.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4180006882",
+    "id" : "CB5013F1",
+    "lastKnownWriteTime" : 1621478312,
+    "last_content_update" : 1621478312,
+    "path" : "D:/YulinChen/ZJU LSI/Lin Lab/R_Packages/MSAnalysiscyl/R/data_clean_normalization.R",
+    "project_path" : "R/data_clean_normalization.R",
+    "properties" : {
+        "cursorPosition" : "6,37",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
