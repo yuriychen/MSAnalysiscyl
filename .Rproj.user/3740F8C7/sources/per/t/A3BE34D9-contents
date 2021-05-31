@@ -30,6 +30,7 @@ MSDataSet <- setRefClass('MSDataSet',
                            num_condition='numeric',
                            num_repeat='numeric',
                            mean_condition='data.frame',
+                           mean_condition_scaled='data.frame',
                            sd_condition='data.frame'
                          ),
                          methods = list(
@@ -206,6 +207,11 @@ MSDataSet <- setRefClass('MSDataSet',
                              colnames(datasd) <- sd_coln
                              mean_condition <<- datamean
                              sd_condition <<- datasd
+                           },
+                           data_mean_scaled = function(){
+                             scaled_mean <- data_scale_mat(mean_condition)
+                             colnames(scaled_mean) <- paste(colnames(scaled_mean),'_scaled',sep='')
+                             mean_condition_scaled <<- scaled_mean
                            }
                          )
 )
@@ -249,6 +255,7 @@ read_maxquant_prot <- function(prot_raw,meta,name='defalut',reference=FALSE,anal
     num_condition=(nrow(meta[is.na(meta$reference),]) / max(meta[,'repeat.'])),
     num_repeat=length(unique(meta[,'repeat.'])),
     mean_condition=data.frame(),
+    mean_condition_scaled=data.frame(),
     sd_condition=data.frame()
   )
 

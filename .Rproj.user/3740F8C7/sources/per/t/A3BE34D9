@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "217057499",
+    "hash" : "1423090164",
     "id" : "A3BE34D9",
-    "lastKnownWriteTime" : 1622279931,
-    "last_content_update" : 1622279931516,
+    "lastKnownWriteTime" : 1622432272,
+    "last_content_update" : 1622432272507,
     "path" : "D:/YulinChen/ZJU LSI/Lin Lab/R_Packages/MSAnalysiscyl/R/data_read.R",
     "project_path" : "R/data_read.R",
     "properties" : {
-        "cursorPosition" : "19,45",
-        "scrollLine" : "7"
+        "cursorPosition" : "213,66",
+        "scrollLine" : "196"
     },
     "read_only" : false,
     "read_only_alternatives" : [

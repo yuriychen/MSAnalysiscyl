@@ -11,20 +11,20 @@ data_annotation <- function(prot_dat_extract){
   prot_annotation$PROTEIN <- apply(prot_annotation,1,function(x){unlist(strsplit(x[4],'_HUMAN'))[1]})
   prot_annotation$FULLNAME <- apply(prot_annotation,1,function(x){unlist(strsplit(x[2],'_HUMAN'))[2]})
   prot_annotation$FULLNAME <- apply(prot_annotation,1,function(x){unlist(strsplit(x[5],'OS=Homo'))[1]})
-  
+
   return(list(prot_dat_extract[[1]],prot_annotation))
 }
 
 data_extract <- function(prot_dat,meta){
   prot_dat_tmt <- prot_dat[,meta$channel]
   colnames(prot_dat_tmt) <- meta$sample
-  
+
   return(list(prot_dat_tmt,prot_dat[,c('id','Fasta.headers')]))
 }
 
 data_calCV_draw <- function(prot_dat,condition_num,repeat_num,state){
   prot_dat_reorder <- data_rearrange(prot_dat,condition_num,repeat_num)
-  
+
   i <- 1
   mean_list <- apply(prot_dat_reorder[,1 : repeat_num], 1, mean)
   sd_list <- apply(prot_dat_reorder[,1 : repeat_num], 1, sd)
@@ -41,7 +41,7 @@ data_calCV_draw <- function(prot_dat,condition_num,repeat_num,state){
   cond_seq <- seq(1,condition_num,1)
   cond_seq_title <- paste('cond',cond_seq,sep = '')
   colnames(prot_dat_cv) <- cond_seq_title
-  
+
   qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
   col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
   boxplot(prot_dat_cv, col = col_vector[9:(condition_num+8)], main = state)
@@ -59,6 +59,11 @@ data_rearrange <- function(prot_dat,condition_num,repeat_num){
   return(prot_dat_reorder)
 }
 
+#' @title Dataset Scaled.
+#' @description Scale dataframe into mean 0 and sd 1 by rows.
+#' @details Input dataframe, then return a scaled set of dataframe.
+#' @param prot A DataFrame from with only numeric value.
+#' @export
 data_scale_mat <- function(prot){
   m <- apply(prot, 1, mean)
   s <- apply(prot, 1, sd)
@@ -85,23 +90,23 @@ data_zero_substitution_3repeats <- function(protdat,s1,e1,s2,e2,s3,e3,condition_
   temp_2 <- protdat[,s2:e2]
   temp_2[temp_2 == 0] <- least
   temp_3 <- protdat[,s3:e3]
-  
+
   temp_12 <- cbind(temp_1,temp_2)
   temp_12_norm <- data_norm_irs(temp_12,condition_num,2)
-  
+
   temp_1 <- temp_12_norm[,1:condition_num]
   temp_2 <- temp_12_norm[,(condition_num + 1):(condition_num * 2)]
-  
+
   i <- 1
   while(i <= condition_num){
     temp_3[,i] <- (temp_1[,i] + temp_2[,i]) / 2
     i <- i + 1
   }
-  
+
   protdat[,s1:e1] <- temp_1
   protdat[,s2:e2] <- temp_2
   protdat[,s3:e3] <- temp_3
-  
+
   return(protdat)
 }
 
@@ -116,7 +121,7 @@ data_norm_irs <- function(prot_dat,condition_num,repeat_num){
   }
   irs <- irs[,-1]
   irs$average <- apply(irs,1,function(x){exp(mean(log((x))))})
-  
+
   i <- 1
   prot_dat_irs <- cbind(rownames(prot_dat),(prot_dat[,1:condition_num] * irs$average / rowSums(prot_dat[,1:condition_num])))
   while (i < repeat_num){
@@ -125,10 +130,10 @@ data_norm_irs <- function(prot_dat,condition_num,repeat_num){
     prot_dat_irs <- cbind(prot_dat_irs,(prot_dat[,start_site:stop_site] * irs$average / rowSums(prot_dat[,start_site:stop_site])))
     i <- i + 1
   }
-  
+
   rownames(prot_dat_irs) <- prot_dat_irs[,1]
   prot_dat_irs <- prot_dat_irs[,-1]
-  
+
   return(prot_dat_irs)
 }
 
@@ -143,7 +148,7 @@ data_norm_ers <- function(prot_dat,condition_num,repeat_num,ref_col = c(1,7,13))
   temp <- prot_ref
   temp$rowsum <- rowSums(temp)
   prot_ref <- temp$rowsum / prot_ref
-  
+
   i <- 1
   while(i <= ncol(prot_ref)){
     start_site <- (i - 1) * (condition_num + 1) + 1
@@ -151,6 +156,6 @@ data_norm_ers <- function(prot_dat,condition_num,repeat_num,ref_col = c(1,7,13))
     prot_dat[,start_site : stop_site] <- prot_dat[,start_site : stop_site] * prot_ref[,i]
     i <- i + 1
   }
-  
+
   return(prot_dat)
 }

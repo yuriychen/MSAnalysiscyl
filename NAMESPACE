@@ -3,6 +3,7 @@
 export(data_calMean_calSD)
 export(data_draw_specific)
 export(data_norm_ers)
+export(data_scale_mat)
 export(data_transform_melt)
 export(data_volcano)
 export(data_volcano_label)

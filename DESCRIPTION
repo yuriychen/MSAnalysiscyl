@@ -1,7 +1,7 @@
 Package: MSAnalysiscyl
 Type: Package
 Title: MS analysis functions
-Version: 0.1.1
+Version: 0.1.2
 Author: Yulin Chen
 Maintainer: Yulin Chen <ychen209@qq.com>
 Depends: R (>= 4.0.0)
