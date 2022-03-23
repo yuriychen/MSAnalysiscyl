@@ -125,7 +125,7 @@ data_volcano_label <- function(prot,condition1,condition2, df, xleft=-5, xright=
 
   prot_mean_sd <- data_calMean_calSD(cbind(prot_dat_1,prot_dat_2),meta)
   fc <- prot_mean_sd[,3] / prot_mean_sd[,1]
-  l2fc <- log10(fc)
+  l2fc <- log2(fc)
 
   prot_fudge <- data.frame(l2fc,lgpvalue)
   colnames(prot_fudge) <- c('l2fc','lgpvalue')
@@ -173,12 +173,12 @@ data_volcano_label <- function(prot,condition1,condition2, df, xleft=-5, xright=
 
 data_calsmoothcurve = function(x,ta,s0,df){
   if (x > 0) {
-    y = x * ta / (x - (ta * s0))
+    y = ta * (1 + (s0 / ((x/ta)-s0)))
     y = -log10(2*(1-pt(y,df=df)))
     return(y)
   }
   else if (x < 0) {
-    y = x * ta / (x + (ta * s0))
+    y = ta * (1 + (s0 / ((x/-ta)-s0)))
     y = -log10(2*(1-pt(y,df=df)))
     return(y)
   }
